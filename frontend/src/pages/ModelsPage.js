@@ -78,6 +78,15 @@ export default function ModelsPage() {
       await createModel(form);
       toast.success("Model registered");
       setShowCreate(false);
+      setForm({
+        provider_id: "", provider_type: "", model_id: "", display_name: "",
+        context_window: 0, max_output_tokens: 0,
+        capabilities: {
+          text_generation: true, tool_calling: false, vision: false, streaming: false,
+          prompt_caching: false, structured_output: false, audio_input: false, audio_output: false, video_input: false,
+        },
+        pricing: { input_per_1m: 0, output_per_1m: 0, cached_input_per_1m: 0, cache_creation_per_1m: 0 },
+      });
       load();
     } catch (err) {
       toast.error(err.response?.data?.detail || "Failed to register model");

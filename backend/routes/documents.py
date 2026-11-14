@@ -30,10 +30,14 @@ async def upload_document(
         raise HTTPException(404, "Project not found")
     if doc_type not in VALID_DOC_TYPES:
         raise HTTPException(400, f"doc_type must be one of: {', '.join(VALID_DOC_TYPES)}")
-    if not file.filename.endswith(".md"):
+    if not file.filename.lower().endswith(".md"):
         raise HTTPException(400, "Only .md (Markdown) files are accepted")
 
-    content = (await file.read()).decode("utf-8")
+    raw = await file.read()
+    try:
+        content = raw.decode("utf-8")
+    except UnicodeDecodeError:
+        raise HTTPException(400, "File is not valid UTF-8 encoded text")
     content_hash = compute_content_hash(content)
 
     existing = await db.documents.find_one(

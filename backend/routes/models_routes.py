@@ -31,15 +31,18 @@ async def create_model(body: ModelCreate):
     existing = await db.ai_models.find_one({"provider_id": body.provider_id, "model_id": body.model_id})
     if existing:
         raise HTTPException(409, "Model already registered for this provider")
+    if not body.model_id.strip() or not body.display_name.strip():
+        raise HTTPException(400, "model_id and display_name cannot be empty")
+    from models import ModelCapabilities, ModelPricing
     model = AIModel(
         provider_id=body.provider_id,
-        provider_type=body.provider_type,
-        model_id=body.model_id,
-        display_name=body.display_name,
-        capabilities=body.capabilities or AIModel.__fields__["capabilities"].default_factory(),
+        provider_type=provider.get("provider_type", body.provider_type),
+        model_id=body.model_id.strip(),
+        display_name=body.display_name.strip(),
+        capabilities=body.capabilities or ModelCapabilities(),
         context_window=body.context_window,
         max_output_tokens=body.max_output_tokens,
-        pricing=body.pricing or AIModel.__fields__["pricing"].default_factory(),
+        pricing=body.pricing or ModelPricing(),
     )
     await db.ai_models.insert_one(model.to_mongo())
     await log_audit("registered", "model", model.id, model.display_name)
@@ -56,11 +59,13 @@ async def get_model(model_db_id: str):
 
 @router.delete("/models/{model_db_id}")
 async def delete_model(model_db_id: str):
-    result = await db.ai_models.delete_one({"_id": model_db_id})
-    if result.deleted_count == 0:
+    doc = await db.ai_models.find_one({"_id": model_db_id})
+    if not doc:
         raise HTTPException(404, "Model not found")
+    name = doc.get("display_name", "")
+    await db.ai_models.delete_one({"_id": model_db_id})
     await db.model_assignments.delete_many({"ai_model_db_id": model_db_id})
-    await log_audit("deleted", "model", model_db_id)
+    await log_audit("deleted", "model", model_db_id, name)
     return {"status": "deleted"}
 
 

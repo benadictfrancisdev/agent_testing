@@ -30,6 +30,8 @@ async def list_providers():
 
 @router.post("", status_code=201)
 async def create_provider(body: ProviderCreate):
+    if not body.name.strip():
+        raise HTTPException(400, "Provider name cannot be empty")
     if body.provider_type not in PROVIDER_TYPES:
         raise HTTPException(400, f"provider_type must be one of: {', '.join(PROVIDER_TYPES)}")
     provider = AIProvider(
@@ -75,11 +77,13 @@ async def update_provider(provider_id: str, body: ProviderUpdate):
 
 @router.delete("/{provider_id}")
 async def delete_provider(provider_id: str):
-    result = await db.ai_providers.delete_one({"_id": provider_id})
-    if result.deleted_count == 0:
+    doc = await db.ai_providers.find_one({"_id": provider_id})
+    if not doc:
         raise HTTPException(404, "Provider not found")
+    name = doc.get("name", "")
+    await db.ai_providers.delete_one({"_id": provider_id})
     await db.ai_models.delete_many({"provider_id": provider_id})
-    await log_audit("deleted", "provider", provider_id)
+    await log_audit("deleted", "provider", provider_id, name)
     return {"status": "deleted"}
 
 
@@ -99,7 +103,7 @@ async def validate_provider(provider_id: str):
             "updated_at": now,
         }},
     )
-    await log_audit("validated", "provider", provider_id, details={"validation_status": validation_status})
+    await log_audit("validated", "provider", provider_id, doc.get("name", ""), {"validation_status": validation_status})
     updated = await db.ai_providers.find_one({"_id": provider_id})
     return AIProvider.from_mongo(updated).model_dump()
 
@@ -120,6 +124,6 @@ async def set_provider_key(provider_id: str):
             "updated_at": now,
         }},
     )
-    await log_audit("key_configured", "provider", provider_id)
+    await log_audit("key_configured", "provider", provider_id, doc.get("name", ""))
     updated = await db.ai_providers.find_one({"_id": provider_id})
     return AIProvider.from_mongo(updated).model_dump()

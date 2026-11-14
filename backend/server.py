@@ -22,7 +22,6 @@ from routes.audit import router as audit_router
 
 INDEXES: dict[str, list[IndexModel]] = {
     "projects": [
-        IndexModel([("_id", ASCENDING)], name="id_asc"),
         IndexModel([("status", ASCENDING)], name="status"),
         IndexModel([("created_at", DESCENDING)], name="created_desc"),
     ],

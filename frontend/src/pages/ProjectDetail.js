@@ -160,7 +160,8 @@ export default function ProjectDetail() {
     }
   };
 
-  const handleDeleteDoc = async (docId) => {
+  const handleDeleteDoc = async (docId, filename) => {
+    if (!window.confirm(`Delete document "${filename}"?`)) return;
     try {
       await deleteDocument(docId);
       toast.success("Document deleted");
@@ -293,7 +294,7 @@ export default function ProjectDetail() {
                       </button>
                       <button
                         data-testid={`doc-delete-${dt.key}`}
-                        onClick={() => handleDeleteDoc(docObj.id)}
+                        onClick={() => handleDeleteDoc(docObj.id, dt.label)}
                         className="p-1.5 rounded hover:bg-[#f43f5e]/10 text-[#71717a] hover:text-[#f43f5e]"
                         title="Delete"
                       >

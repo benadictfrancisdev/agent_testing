@@ -1,0 +1,50 @@
+{
+  "summary": "Phase 1 E2E tested (backend pytest 18 tests + Playwright UI on desktop). All 18 requested features work end-to-end: dashboard KPIs/recent projects/activity/quick actions, sidebar nav, project create/search/detail tabs/delete, upload of all 3 .md doc types with metadata + versioning, markdown preview dialog (headings + GFM table render), repo/app config save + persist after reload, providers add/validate/mark-key/delete, model registry register (capabilities+pricing) + delete, audit log filter, settings display. Backend 15/18 passed; the 3 failures are edge-case validation/500 bugs.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "GET /api/projects?search=(", "issue": "500 Internal Server Error - search string passed raw into Mongo $regex; invalid regex chars crash. Use re.escape(search)."},
+      {"endpoint": "POST /api/projects/{id}/documents", "issue": "Non-UTF8 .md file -> 500 UnicodeDecodeError (documents.py:36). Wrap decode in try/except and return 400. Also '.MD' uppercase extension rejected (use .lower().endswith)."},
+      {"endpoint": "POST /api/projects", "issue": "Empty name '' accepted (201). Add Field(min_length=1) / strip validation to ProjectCreate (and ProviderCreate.name, ModelCreate fields)."},
+      {"endpoint": "audit logging (projects/providers/models/documents)", "issue": "log_audit for delete/update/validate/key_configured does not pass resource_name, so Audit Logs and Dashboard activity show '—' / no name for most entries. Fetch name before delete and pass it."},
+      {"endpoint": "DELETE /api/model-assignments/{id}", "issue": "No audit log entry on assignment delete; assignment upsert path also not audited."},
+      {"endpoint": "POST /api/models", "issue": "provider_type is taken from client and not validated against the provider's actual provider_type."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "ModelsPage Register dialog", "issue": "Form not reset after successful registration - reopening dialog shows previous model_id/display_name/pricing", "selector": "[data-testid='model-id-input']", "priority": "LOW"},
+      {"component": "ProvidersPage create dialog", "issue": "No Endpoint URL input even for 'Custom' provider type although backend supports endpoint_url", "selector": "[data-testid='provider-type-select']", "priority": "MEDIUM"},
+      {"component": "ProjectDetail documents", "issue": "Document delete (trash icon) has no confirmation, deletes immediately", "selector": "[data-testid^='doc-delete-']", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Providers page", "issues": ["Provider card dropdown trigger (MoreVertical) lacks data-testid", "provider_type rendered with CSS capitalize -> 'Openai' instead of 'OpenAI'"]},
+      {"screen": "Document preview dialog", "issues": ["Markdown unordered list bullets not visible (list-style missing in .markdown-content)"]},
+      {"screen": "Settings page", "issues": ["All values hardcoded in JSX; not fetched from organizations/users collections"]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_platform_phase1.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [
+    "Escape regex in project search (re.escape) to fix 500",
+    "Return 400 for non-UTF8 document uploads instead of 500; accept case-insensitive .md",
+    "Add min_length validation on project/provider/model names",
+    "Pass resource_name in audit logs for delete/update/validate/key_configured actions",
+    "Reset Register Model form after success",
+    "Add endpoint URL field for Custom provider type",
+    "Add data-testid to provider card menu trigger; confirm before document delete"
+  ],
+  "critical_code_review_comments": [
+    "log_audit helper duplicated in 4 route files - extract to a shared module",
+    "server.py creates an index on _id with custom name 'id_asc' - redundant (Mongo has default _id index) and may log an error at startup",
+    "AIModel.__fields__ is deprecated in Pydantic v2 - use ModelCapabilities()/ModelPricing() directly",
+    "Dashboard /recent-activity limit is unbounded (no Query ge/le)",
+    "No upload size limit on documents"
+  ],
+  "updated_files": ["/app/backend/tests/test_platform_phase1.py"],
+  "success_rate": {"backend": "83% (15/18; failures are edge cases)", "frontend": "100% of requested flows working"},
+  "seed_data_creation": "None persisted. All TEST_ projects/providers/models created during tests were deleted by id; seeded 'E-Commerce QA' and 2 providers untouched.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Run: cd /app/backend && REACT_APP_BACKEND_URL=<url> python -m pytest tests/test_platform_phase1.py. Failing tests: test_project_search_regex_special_chars, test_project_empty_name_rejected, test_document_non_utf8. UI testids: create-project-button, project-card-*, project-menu-*, project-delete-*, project-tab-*, document-upload-{plan|scenario|functionalities} (contains input[type=file]), doc-preview-*, repo-url-input, app-url-input, add-provider-button, provider-type-select, provider-card-* (menu trigger = first button in card), model-provider-select, audit-filter-select, nav-*."
+}

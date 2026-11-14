@@ -1,3 +1,4 @@
+import re
 from fastapi import APIRouter, HTTPException
 from database import db
 from models import (
@@ -27,7 +28,7 @@ async def list_projects(status: str = None, search: str = None):
     if status:
         query["status"] = status
     if search:
-        query["name"] = {"$regex": search, "$options": "i"}
+        query["name"] = {"$regex": re.escape(search), "$options": "i"}
     cursor = db.projects.find(query, {"_id": 1, "name": 1, "description": 1, "status": 1,
                                        "repository": 1, "application": 1, "document_status": 1,
                                        "stats": 1, "tags": 1, "created_at": 1, "updated_at": 1})
@@ -38,7 +39,9 @@ async def list_projects(status: str = None, search: str = None):
 
 @router.post("", status_code=201)
 async def create_project(body: ProjectCreate):
-    project = Project(name=body.name, description=body.description, tags=body.tags)
+    if not body.name.strip():
+        raise HTTPException(400, "Project name cannot be empty")
+    project = Project(name=body.name.strip(), description=body.description, tags=body.tags)
     await db.projects.insert_one(project.to_mongo())
     await log_audit("created", "project", project.id, project.name)
     return project.model_dump()
@@ -68,11 +71,13 @@ async def update_project(project_id: str, body: ProjectUpdate):
 
 @router.delete("/{project_id}")
 async def delete_project(project_id: str):
-    result = await db.projects.delete_one({"_id": project_id})
-    if result.deleted_count == 0:
+    doc = await db.projects.find_one({"_id": project_id})
+    if not doc:
         raise HTTPException(404, "Project not found")
+    name = doc.get("name", "")
+    await db.projects.delete_one({"_id": project_id})
     await db.documents.delete_many({"project_id": project_id})
-    await log_audit("deleted", "project", project_id)
+    await log_audit("deleted", "project", project_id, name)
     return {"status": "deleted"}
 
 

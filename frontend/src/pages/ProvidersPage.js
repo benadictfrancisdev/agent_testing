@@ -147,14 +147,16 @@ export default function ProvidersPage() {
                     <div>
                       <h3 className="text-sm font-semibold text-[#f4f4f5]">{p.display_name || p.name}</h3>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <Badge variant="outline" className="text-[10px] border-[#27272a] text-[#a1a1aa] capitalize">{p.provider_type}</Badge>
+                      <Badge variant="outline" className="text-[10px] border-[#27272a] text-[#a1a1aa]">{
+                        p.provider_type === "openai" ? "OpenAI" : p.provider_type === "anthropic" ? "Anthropic" : p.provider_type === "google" ? "Google" : p.provider_type
+                      }</Badge>
                         <div className={`status-dot ${p.status}`} />
                       </div>
                     </div>
                   </div>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <button className="p-1 rounded hover:bg-[#27272a] text-[#71717a] hover:text-[#f4f4f5]">
+                      <button data-testid={`provider-menu-${p.id}`} className="p-1 rounded hover:bg-[#27272a] text-[#71717a] hover:text-[#f4f4f5]">
                         <MoreVertical className="w-4 h-4" />
                       </button>
                     </DropdownMenuTrigger>
@@ -249,6 +251,18 @@ export default function ProvidersPage() {
                 className="mt-1.5 bg-[#09090b] border-[#27272a] text-[#f4f4f5] placeholder:text-[#52525b]"
               />
             </div>
+            {form.provider_type === "custom" && (
+              <div>
+                <Label className="text-[#a1a1aa] text-xs uppercase tracking-wider">Endpoint URL</Label>
+                <Input
+                  data-testid="provider-endpoint-url-input"
+                  value={form.endpoint_url}
+                  onChange={(e) => setForm((f) => ({ ...f, endpoint_url: e.target.value }))}
+                  placeholder="https://api.example.com/v1"
+                  className="mt-1.5 bg-[#09090b] border-[#27272a] text-[#f4f4f5] placeholder:text-[#52525b] mono-font text-sm"
+                />
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowCreate(false)} className="border-[#27272a] text-[#a1a1aa] hover:text-[#f4f4f5] hover:bg-[#27272a]">Cancel</Button>
