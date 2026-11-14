@@ -15,11 +15,12 @@ import { toast } from "sonner";
 import {
   ArrowLeft, GitBranch, Globe, FileText, Upload,
   Check, X, Eye, Trash2, Hash, BookOpen,
-  Settings, AlertTriangle,
+  Settings, AlertTriangle, Play,
 } from "lucide-react";
 import { useDropzone } from "react-dropzone";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import CredentialsPanel from "@/components/CredentialsPanel";
 
 const DOC_TYPES = [
   { key: "plan", label: "plan.md", desc: "Functional requirements and business rules", field: "plan_uploaded" },
@@ -97,6 +98,8 @@ export default function ProjectDetail() {
   const [previewContent, setPreviewContent] = useState("");
   const [savingRepo, setSavingRepo] = useState(false);
   const [savingApp, setSavingApp] = useState(false);
+  const [appDomains, setAppDomains] = useState("");
+  const [prodOverride, setProdOverride] = useState(false);
 
   const loadProject = useCallback(async () => {
     try {
@@ -106,6 +109,8 @@ export default function ProjectDetail() {
       setRepoBranch(p.repository?.branch || "main");
       setAppUrl(p.application?.url || "");
       setAppEnv(p.application?.environment || "staging");
+      setAppDomains((p.application?.authorized_domains || []).join(", "));
+      setProdOverride(p.application?.production_override || false);
     } catch {
       toast.error("Failed to load project");
     }
@@ -140,7 +145,12 @@ export default function ProjectDetail() {
   const handleSaveApp = async () => {
     setSavingApp(true);
     try {
-      const updated = await updateAppConfig(id, { url: appUrl, environment: appEnv });
+      const updated = await updateAppConfig(id, {
+        url: appUrl,
+        environment: appEnv,
+        authorized_domains: appDomains.split(",").map(d => d.trim()).filter(Boolean),
+        production_override: prodOverride,
+      });
       setProject(updated);
       toast.success("Application config saved");
     } catch {
@@ -212,6 +222,13 @@ export default function ProjectDetail() {
           </div>
           {project.description && <p className="text-sm text-[#a1a1aa] mt-0.5 truncate">{project.description}</p>}
         </div>
+        <Button
+          data-testid="start-run-btn"
+          onClick={() => navigate(`/runs/new?project=${id}`)}
+          className="bg-[#00f0ff] text-[#09090b] hover:bg-[#38f4ff] font-medium h-9 px-4 shrink-0"
+        >
+          <Play className="w-4 h-4 mr-1.5" /> Start Run
+        </Button>
       </div>
 
       {!allDocsUploaded && (
@@ -225,7 +242,7 @@ export default function ProjectDetail() {
 
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="bg-[#121215] border border-[#27272a] p-0.5">
-          {["overview", "documents", "repository", "application"].map((t) => (
+          {["overview", "documents", "repository", "application", "credentials"].map((t) => (
             <TabsTrigger
               key={t}
               value={t}
@@ -387,6 +404,27 @@ export default function ProjectDetail() {
                 className="mt-1.5 bg-[#09090b] border-[#27272a] text-[#f4f4f5] placeholder:text-[#52525b]"
               />
             </div>
+            <div>
+              <Label className="text-[#a1a1aa] text-xs uppercase tracking-wider">Authorized Domains (comma-separated)</Label>
+              <Input
+                data-testid="app-domains-input"
+                value={appDomains}
+                onChange={(e) => setAppDomains(e.target.value)}
+                placeholder="staging.myapp.com, qa.myapp.com"
+                className="mt-1.5 bg-[#09090b] border-[#27272a] text-[#f4f4f5] placeholder:text-[#52525b] mono-font text-sm"
+              />
+              <p className="text-[10px] text-[#52525b] mt-1">The agent browser will only navigate within these domains.</p>
+            </div>
+            {appUrl && ["prod", "production", "www."].some(t => appUrl.toLowerCase().includes(t)) && (
+              <div className="p-3 rounded-lg bg-[#f43f5e]/5 border border-[#f43f5e]/20 space-y-2">
+                <p className="text-xs text-[#f43f5e] font-medium">Production guard: this URL looks like a production environment.</p>
+                <p className="text-[10px] text-[#f43f5e]/70">The agent will refuse to run tests against it unless you enable the override below.</p>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked={prodOverride} onChange={(e) => setProdOverride(e.target.checked)} className="rounded border-[#f43f5e]" />
+                  <span className="text-xs text-[#a1a1aa]">I confirm this is a staging/QA environment — override the production guard</span>
+                </label>
+              </div>
+            )}
             <Button
               data-testid="save-app-config-btn"
               onClick={handleSaveApp}
@@ -396,6 +434,11 @@ export default function ProjectDetail() {
               {savingApp ? "Saving..." : "Save Application Config"}
             </Button>
           </div>
+        </TabsContent>
+
+        {/* Credentials Tab */}
+        <TabsContent value="credentials" className="mt-4">
+          <CredentialsPanel projectId={id} />
         </TabsContent>
       </Tabs>
 

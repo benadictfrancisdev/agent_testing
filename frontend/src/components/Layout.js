@@ -2,14 +2,43 @@ import { NavLink, useLocation } from "react-router-dom";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   LayoutDashboard, FolderKanban, Cpu, Database,
-  ScrollText, Settings, Bug, ChevronLeft, ChevronRight,
-  Zap
+  ScrollText, Settings, ChevronLeft, ChevronRight,
+  Play, Zap
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+let UserButtonComponent = null;
+try { UserButtonComponent = require("@clerk/react").UserButton; } catch {}
+
+function SafeUserButton() {
+  const [clerkAvailable, setClerkAvailable] = useState(false);
+  useEffect(() => {
+    try {
+      const ctx = require("@clerk/react").useClerk;
+      if (ctx) setClerkAvailable(true);
+    } catch {}
+  }, []);
+  if (!clerkAvailable || !UserButtonComponent) {
+    return (
+      <div className="w-8 h-8 rounded-full bg-[#00f0ff]/15 flex items-center justify-center">
+        <span className="text-xs font-medium text-[#00f0ff]">A</span>
+      </div>
+    );
+  }
+  try {
+    return <UserButtonComponent afterSignOutUrl="/" />;
+  } catch {
+    return (
+      <div className="w-8 h-8 rounded-full bg-[#00f0ff]/15 flex items-center justify-center">
+        <span className="text-xs font-medium text-[#00f0ff]">A</span>
+      </div>
+    );
+  }
+}
 
 const NAV_ITEMS = [
   { to: "/", icon: LayoutDashboard, label: "Dashboard" },
-  { to: "/projects", icon: FolderKanban, label: "Projects" },
+  { to: "/projects", icon: FolderKanban, label: "Applications" },
   { to: "/providers", icon: Cpu, label: "AI Providers" },
   { to: "/models", icon: Database, label: "Model Registry" },
   { to: "/audit", icon: ScrollText, label: "Audit Logs" },
@@ -31,11 +60,11 @@ function Sidebar({ collapsed, setCollapsed }) {
     >
       <div className="flex items-center gap-2 px-4 h-14 border-b border-[#27272a] shrink-0">
         <div className="w-7 h-7 rounded-md bg-[#00f0ff]/15 flex items-center justify-center shrink-0">
-          <Bug className="w-4 h-4 text-[#00f0ff]" />
+          <Play className="w-4 h-4 text-[#00f0ff]" />
         </div>
         {!collapsed && (
           <span className="heading-font text-sm font-bold text-[#f4f4f5] tracking-tight truncate">
-            RegressAI
+            Ayksa
           </span>
         )}
       </div>
@@ -81,7 +110,7 @@ function TopBar() {
       <div className="flex items-center gap-2">
         <Zap className="w-4 h-4 text-[#00f0ff]" />
         <span className="text-xs mono-font uppercase tracking-[0.2em] text-[#a1a1aa]">
-          AI Testing Platform
+          Ayksa Testing
         </span>
       </div>
       <div className="flex items-center gap-3">
@@ -89,9 +118,7 @@ function TopBar() {
           <div className="status-dot active" />
           <span className="text-xs text-[#a1a1aa]">System Online</span>
         </div>
-        <div className="w-8 h-8 rounded-full bg-[#00f0ff]/15 flex items-center justify-center">
-          <span className="text-xs font-medium text-[#00f0ff]">SA</span>
-        </div>
+        <SafeUserButton />
       </div>
     </header>
   );

@@ -19,6 +19,13 @@ from routes.providers import router as providers_router
 from routes.models_routes import router as models_router
 from routes.dashboard import router as dashboard_router
 from routes.audit import router as audit_router
+from routes.stubs import router as stubs_router
+from routes.runs import router as runs_router
+
+try:
+    from clerk_auth import clerk_router
+except ModuleNotFoundError:
+    from backend.clerk_auth import clerk_router
 
 INDEXES: dict[str, list[IndexModel]] = {
     "projects": [
@@ -78,6 +85,9 @@ app.include_router(providers_router)
 app.include_router(models_router)
 app.include_router(dashboard_router)
 app.include_router(audit_router)
+app.include_router(stubs_router)
+app.include_router(runs_router)
+app.include_router(clerk_router)
 
 app.add_middleware(
     CORSMiddleware,

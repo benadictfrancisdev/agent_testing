@@ -3,6 +3,18 @@ import axios from "axios";
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = axios.create({ baseURL: `${BACKEND_URL}/api` });
 
+let _getToken = null;
+export const setAuthTokenGetter = (fn) => { _getToken = fn; };
+API.interceptors.request.use(async (config) => {
+  if (_getToken) {
+    try {
+      const token = await _getToken();
+      if (token) config.headers.Authorization = `Bearer ${token}`;
+    } catch {}
+  }
+  return config;
+});
+
 // Dashboard
 export const fetchDashboardStats = () => API.get("/dashboard/stats").then(r => r.data);
 export const fetchRecentActivity = (limit = 20) => API.get(`/dashboard/recent-activity?limit=${limit}`).then(r => r.data);
@@ -52,5 +64,10 @@ export const fetchTaskTypes = () => API.get("/task-types").then(r => r.data);
 
 // Audit Logs
 export const fetchAuditLogs = (params) => API.get("/audit-logs", { params }).then(r => r.data);
+
+// Test Accounts
+export const fetchTestAccounts = (projectId) => API.get(`/projects/${projectId}/test-accounts`).then(r => r.data);
+export const addTestAccount = (projectId, data) => API.post(`/projects/${projectId}/test-accounts`, data).then(r => r.data);
+export const removeTestAccount = (projectId, accountId) => API.delete(`/projects/${projectId}/test-accounts/${accountId}`).then(r => r.data);
 
 export default API;

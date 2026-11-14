@@ -1,12 +1,26 @@
 import re
+import uuid as uuid_mod
+from urllib.parse import urlparse
 from fastapi import APIRouter, HTTPException
 from database import db
 from models import (
     Project, ProjectCreate, ProjectUpdate,
     RepositoryConfigUpdate, ApplicationConfigUpdate,
-    AuditLog,
+    AuditLog, TestAccountCreate,
 )
+from vault import encrypt_password
 from datetime import datetime, timezone
+
+PRODUCTION_BLOCKLIST = ["prod", "production", "www."]
+
+
+def check_production_url(url: str) -> str:
+    parsed = urlparse(url)
+    host = (parsed.hostname or "").lower()
+    for term in PRODUCTION_BLOCKLIST:
+        if term in host:
+            return term
+    return ""
 
 router = APIRouter(prefix="/api/projects", tags=["projects"])
 
@@ -102,6 +116,14 @@ async def update_repository_config(project_id: str, body: RepositoryConfigUpdate
 
 @router.put("/{project_id}/application")
 async def update_application_config(project_id: str, body: ApplicationConfigUpdate):
+    if body.url:
+        blocked = check_production_url(body.url)
+        if blocked and not body.production_override:
+            raise HTTPException(
+                400,
+                f"URL appears to target a production environment (matched: '{blocked}'). "
+                "Enable the production override with a documented reason to proceed.",
+            )
     app_data = body.model_dump()
     app_data["auth_configured"] = False
     updates = {f"application.{k}": v for k, v in app_data.items()}
@@ -112,3 +134,51 @@ async def update_application_config(project_id: str, body: ApplicationConfigUpda
     await log_audit("updated", "project", project_id, details={"application": app_data})
     doc = await db.projects.find_one({"_id": project_id})
     return Project.from_mongo(doc).model_dump()
+
+
+# --- Test Accounts (Credential Vault) ---
+
+@router.post("/{project_id}/test-accounts", status_code=201)
+async def add_test_account(project_id: str, body: TestAccountCreate):
+    project = await db.projects.find_one({"_id": project_id})
+    if not project:
+        raise HTTPException(404, "Project not found")
+    if not body.label.strip() or not body.username.strip():
+        raise HTTPException(400, "Label and username are required")
+    account_id = str(uuid_mod.uuid4())
+    encrypted_pw = encrypt_password(body.password) if body.password else ""
+    doc = {
+        "_id": account_id,
+        "project_id": project_id,
+        "label": body.label.strip(),
+        "role": body.role.strip(),
+        "username": body.username.strip(),
+        "password_encrypted": encrypted_pw,
+        "has_password": bool(body.password),
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.test_accounts.insert_one(doc)
+    await log_audit("created", "test_account", account_id, body.label, {"project_id": project_id})
+    doc.pop("password_encrypted", None)
+    doc["id"] = doc.pop("_id")
+    return doc
+
+
+@router.get("/{project_id}/test-accounts")
+async def list_test_accounts(project_id: str):
+    docs = await db.test_accounts.find(
+        {"project_id": project_id}, {"password_encrypted": 0}
+    ).sort("created_at", 1).to_list(50)
+    for d in docs:
+        d["id"] = str(d.pop("_id"))
+    return docs
+
+
+@router.delete("/{project_id}/test-accounts/{account_id}")
+async def delete_test_account(project_id: str, account_id: str):
+    doc = await db.test_accounts.find_one({"_id": account_id, "project_id": project_id})
+    if not doc:
+        raise HTTPException(404, "Test account not found")
+    await db.test_accounts.delete_one({"_id": account_id})
+    await log_audit("deleted", "test_account", account_id, doc.get("label", ""), {"project_id": project_id})
+    return {"status": "deleted"}

@@ -1,74 +1,45 @@
-# AI Autonomous Regression Testing Platform - PRD
-
-## Original Problem Statement
-Build an enterprise-grade AI Autonomous Regression Testing Platform with provider-independent AI Model Gateway, project management, document management, GitHub integration, browser testing, and comprehensive token/cost governance.
+# Ayksa Testing — AI Autonomous Regression Testing Platform
 
 ## Architecture
-- **Backend**: FastAPI + MongoDB (via motor) on port 8001
+- **Backend**: FastAPI + MongoDB on port 8001
 - **Frontend**: React + Tailwind CSS + Shadcn UI on port 3000
-- **Database**: MongoDB (collections: organizations, users, projects, documents, ai_providers, ai_models, model_assignments, audit_logs)
-- **Auth**: None (Phase 2)
+- **Agent**: Single Claude orchestrator with structured tool calling via emergentintegrations
+- **Browser**: Playwright (Chromium headless) for agent-driven testing
+- **Auth**: Clerk (wired, pending platform key activation)
 
-## User Personas
-- Super Admin: Full platform access (seeded: admin@platform.com)
-- Project Admin: Manage projects (Phase 2)
-- QA Engineer: Execute tests (Phase 2)
-- Viewer: Read-only (Phase 2)
+## Data Model
+Organization (single) → Applications (projects) → Documents + Test Accounts → Runs → Tool Calls + Evidence + Report + Token Usage
 
-## Core Requirements
-1. Single-org project management with CRUD
-2. Three mandatory document uploads (plan.md, scenario.md, functionalities-scenario.md)
-3. Provider-independent AI Model Gateway (Anthropic, OpenAI, Google, Custom)
-4. Model registry with capabilities and pricing
-5. GitHub repository configuration per project
-6. Application URL and credential configuration
-7. Audit logging for all platform actions
-8. Token usage tracking and cost governance
-9. Budget management with thresholds
+## What's Implemented (Phase 2 — 2026-11-14)
 
-## What's Been Implemented (Phase 1 - 2026-11-14)
-- [x] Dashboard with KPI stats, recent projects, activity feed, quick actions
-- [x] Project CRUD (create, read, update, delete, search)
-- [x] Project detail with tabs: Overview, Documents, Repository, Application
-- [x] Document upload with drag-drop, markdown preview, versioning, metadata extraction
+### Working Now
+- [x] Dashboard with KPI stats, recent projects, activity feed
+- [x] Application (project) CRUD with search
+- [x] Document upload (plan.md, scenario.md, functionalities-scenario.md) with markdown preview
 - [x] Repository configuration (URL, branch)
-- [x] Application configuration (URL, environment)
-- [x] AI Provider management (add, validate, delete, set key)
-- [x] Model Registry (register models with capabilities, pricing, context window)
-- [x] Model Assignments API (org/project/task level)
-- [x] Audit logging with filtering
-- [x] Settings page
-- [x] Sidebar navigation with collapse
-- [x] Dark enterprise theme (Obsidian Zinc + Electric Cyan)
-- [x] Seeded admin user and default organization
+- [x] Application configuration with authorized domains + production guard
+- [x] Credential vault: encrypted test accounts per project (Fernet encryption, passwords never returned)
+- [x] Staging setup documentation in-app
+- [x] AI Provider management (Anthropic, OpenAI, Google, Custom)
+- [x] Model Registry with capabilities + pricing
+- [x] Audit logging with filters
+- [x] Rebranded to "Ayksa Testing"
+- [x] Stub routes for agent executions, playwright runs, code analyses, reports, token usage
+- [x] Run API: POST /api/runs (start), GET /api/runs (list), GET /api/runs/{id} (detail)
+- [x] Agent orchestrator: single Claude loop with 12 tools, persistent run state
+- [x] Agent tools: fetch_repo, read_requirements_docs, diff_commits, list_changed_files, detect_stack, playwright_login, playwright_explore, api_test, collect_evidence, write_report
+- [x] Run view UI: live tool call log, report display, token usage
+- [x] Start Run button on project detail
 
-## Prioritized Backlog
-### P0 (Next Phase)
-- Authentication and RBAC (login, roles, permissions)
-- GitHub API integration (repo connection, branch fetch, commit history)
-- Credential vault (encrypted storage for API keys and test credentials)
+### Blocked (Platform Key Inactive)
+- [ ] Clerk auth (files wired, provisioning failed — key inactive)
+- [ ] Agent runs (LLM key inactive — orchestrator tested but cannot complete)
+- Admin email configured: benadictfrancis.dev@gmail.com
 
-### P1
-- Single AI Agent orchestrator (Claude/OpenAI/Gemini tool calling)
-- Git change analysis and code intelligence
-- Static analysis and test execution
-- Token usage tracking and cost calculations
-
-### P2
-- Playwright MCP for browser automation
-- Browser login and exploratory testing
-- Repeatable E2E regression scripts
-- Budget controls and spending limits
-
-### P3
-- Regression selection and historical comparisons
-- Failure analysis and evidence collection
-- Reporting and export (PDF/JSON)
-- Multi-organization support
-
-## Next Tasks
-1. Implement auth with RBAC (Phase 2)
-2. GitHub API integration for repo operations
-3. Encrypted credential vault
-4. AI agent orchestrator with tool calling
-5. Token usage capture and cost dashboard
+## Next Tasks (Priority Order)
+1. **Activate platform keys** (Clerk + LLM) — once active, auth + agent runs work immediately
+2. **End-to-end proof**: Connect real repo, start run, verify diff + Playwright login + report
+3. Code change analysis with AST parsing for changed functions/classes
+4. Full Playwright scenario execution (agent-driven)
+5. Report generator with PDF/JSON export
+6. Token/cost tracking with budget thresholds

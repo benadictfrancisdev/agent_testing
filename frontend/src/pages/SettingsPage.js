@@ -63,12 +63,12 @@ export default function SettingsPage() {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-sm text-[#a1a1aa]">Authentication</span>
-              <span className="text-sm text-[#71717a]">Not configured (Phase 2)</span>
+              <Badge className="bg-[#10b981]/10 text-[#10b981] border-0 text-xs">Google SSO (Clerk)</Badge>
             </div>
             <Separator className="bg-[#27272a]" />
             <div className="flex items-center justify-between">
-              <span className="text-sm text-[#a1a1aa]">RBAC</span>
-              <span className="text-sm text-[#71717a]">Not configured (Phase 2)</span>
+              <span className="text-sm text-[#a1a1aa]">Access</span>
+              <span className="text-sm text-[#f4f4f5]">Single Admin</span>
             </div>
             <Separator className="bg-[#27272a]" />
             <div className="flex items-center justify-between">
@@ -94,7 +94,7 @@ export default function SettingsPage() {
       {/* Platform Info */}
       <div className="max-w-2xl pt-4 border-t border-[#27272a]">
         <p className="text-xs text-[#52525b] mono-font">
-          RegressAI Platform v1.0.0 — Phase 1: Foundation
+          Ayksa Testing v2.0 — Phase 2
         </p>
       </div>
     </div>

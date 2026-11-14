@@ -38,6 +38,9 @@ class ApplicationConfig(BaseModel):
     url: str = ""
     environment: str = "staging"
     auth_configured: bool = False
+    authorized_domains: List[str] = []
+    production_override: bool = False
+    production_override_reason: str = ""
 
 
 class ProjectStats(BaseModel):
@@ -209,6 +212,16 @@ class RepositoryConfigUpdate(BaseModel):
 class ApplicationConfigUpdate(BaseModel):
     url: str
     environment: str = "staging"
+    authorized_domains: List[str] = []
+    production_override: bool = False
+    production_override_reason: str = ""
+
+
+class TestAccountCreate(BaseModel):
+    label: str
+    role: str = ""
+    username: str
+    password: str = ""
 
 
 class ProviderCreate(BaseModel):
