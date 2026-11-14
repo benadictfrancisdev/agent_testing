@@ -1,0 +1,133 @@
+{
+  "project_title": "AI Autonomous Regression Testing Platform (Enterprise QA SaaS)",
+  "context_type": "DASHBOARDS & ADMIN PANELS / ENTERPRISE SAAS APP",
+  "theme": {
+    "default_mode": "dark",
+    "theme_switch_supported": true,
+    "style_archetype": "THE PERFORMANCE PRO / HIGH CONTRAST TECHNICAL PRECISION",
+    "description": "Tactical dark UI anchored in Obsidian Zinc (#09090B) with high-density cardless/subtle bordered panels, electric cyan (#00F0FF) and emerald green (#10B981) action triggers, and strict technical hierarchy."
+  },
+  "typography": {
+    "font_genres": {
+      "headings": "Cabinet Grotesk / Outfit / Plus Jakarta Sans (Prohibited from using Inter for Headings)",
+      "body": "Inter / DM Sans",
+      "mono_code": "JetBrains Mono / Source Code Pro"
+    },
+    "hierarchy": {
+      "h1": "text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight",
+      "h2": "text-2xl sm:text-3xl font-bold tracking-tight",
+      "h3": "text-xl sm:text-2xl font-semibold tracking-tight",
+      "h4": "text-lg font-medium",
+      "body_base": "text-sm sm:text-base leading-relaxed",
+      "caption_labels": "text-xs font-mono uppercase tracking-widest text-muted-foreground",
+      "code_snippet": "font-mono text-xs sm:text-sm bg-zinc-900/80 px-2 py-1 rounded border border-zinc-800"
+    },
+    "rules": [
+      "Never use Inter for Main and Sub-headings.",
+      "Always apply tracking-tight or tracking-tighter on headlines > 24px.",
+      "Overline labels MUST be uppercase + text-xs + tracking-[0.2em].",
+      "Maintain a strong hierarchy gap without exceeding text-5xl on hero headers."
+    ]
+  },
+  "colors": {
+    "palette": {
+      "background_dark": "#09090B",
+      "background_light": "#FAFAFA",
+      "surface_dark": "#121215",
+      "surface_border_dark": "#27272A",
+      "primary": "#00F0FF",
+      "primary_hover": "#38F4FF",
+      "accent_emerald": "#10B981",
+      "accent_amber": "#F59E0B",
+      "accent_rose": "#F43F5E",
+      "accent_indigo": "#6366F1",
+      "muted_text": "#A1A1AA",
+      "foreground_dark": "#F4F4F5"
+    },
+    "rules": [
+      "FORBIDDEN_COLOR for AI page: #7351B7",
+      "FORBIDDEN_COLOR for Dashboard: #1B93A4 (Teal green/blue)",
+      "FORBIDDEN_FONT: space grotesk",
+      "Never use pure black #000000 or un-tinted gray #808080. Always tint dark neutrals with cool zinc or navy slate.",
+      "ALWAYS explicitly set text color on hover states (e.g. hover:bg-zinc-800 hover:text-white).",
+      "DO NOT use full-screen dark gradients. Surface textures + solid structural borders are required.",
+      "DO NOT use completely transparent backgrounds on headers, dropdowns, or overlays. Always use backdrop blur with non-transparent surface opacity (e.g. bg-zinc-950/85 backdrop-blur-md)."
+    ]
+  },
+  "grids_and_layout": {
+    "dashboard_grid_protocol": "MODE B: High Density Grid (12-column layout on desktop)",
+    "container_padding": "p-4 sm:p-6 lg:p-8",
+    "gap_spacing": "gap-4 sm:gap-6",
+    "card_style": "Cardless or subtle 1px border (#27272A), 8px border-radius, dark surface (#121215), with direct data visibility.",
+    "subgrid_rules": "Direct grid children only. Motion wrappers must carry grid span classes.",
+    "alignment": "Mobile-first responsive layout with left-aligned dense telemetry tables and right/top CTA action clusters."
+  },
+  "motion_and_interactions": {
+    "libraries": ["framer-motion", "lucide-react"],
+    "micro_interactions": [
+      "Button active scale press (scale: 0.98)",
+      "Card hover subtle elevation with highlight border transition",
+      "Status badge pulse for active regression runs",
+      "Accordion / drawer expansion for trace execution trees"
+    ],
+    "transition_rules": "NEVER use transition: all. Explicitly list transition properties (e.g., transition: opacity 0.2s, transform 0.2s)."
+  },
+  "image_urls": {
+    "code_editor_visuals": [
+      {
+        "url": "https://images.unsplash.com/photo-1555949963-aa79dcee981c?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1ODF8MHwxfHNlYXJjaHw0fHxzb2Z0d2FyZSUyMGRldmVsb3BlciUyMGFic3RyYWN0JTIwdGVjaG5vbG9neSUyMGNvZGUlMjBBSSUyMHRlc3QlMjBkYXNoYm9hcmR8ZW58MHx8fHwxNzk0NjczMjQwfDA&ixlib=rb-4.1.0&q=85",
+        "category": "Code Inspection & Test Execution Analysis",
+        "description": "IDE code execution screen for live browser testing and regression analysis"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1760548425425-e42e77fa38f1?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1ODF8MHwxfHNlYXJjaHwyfHxzb2Z0d2FyZSUyMGRldmVsb3BlciUyMGFic3RyYWN0JTIwdGVjaG5vbG9neSUyMGNvZGUlMjBBSSUyMHRlc3QlMjBkYXNoYm9hcmR8ZW58MHx8fHwxNzk0NjczMjQwfDA&ixlib=rb-4.1.0&q=85",
+        "category": "Document Parsing & Requirement Processing",
+        "description": "Data structure and requirement specification code trace"
+      }
+    ]
+  },
+  "components_to_use": {
+    "shadcn_primitives": [
+      "Tabs",
+      "Dialog / Modal",
+      "DropdownMenu",
+      "Select",
+      "Switch",
+      "Slider",
+      "Progress",
+      "Badge",
+      "Tooltip",
+      "ScrollArea",
+      "Table",
+      "Sonner (Toast)"
+    ],
+    "data_visualization": "Recharts (BarChart, LineChart, AreaChart, PieChart, ResponsiveContainer)",
+    "icons_library": "lucide-react"
+  },
+  "instructions_to_main_agent": {
+    "key_views_to_implement": [
+      "1. Dashboard (KPI tiles, active regression jobs, model status, recent test failures, run pass-rate graphs)",
+      "2. Projects List & Project Configuration (GitHub repo linking, environment URLs, branch triggers, build webhooks)",
+      "3. Document Management (Upload & parse plan.md, scenario.md, functionalities-scenario.md, render formatted markdown editor & tree outline)",
+      "4. AI Provider Management (Gateway configuration for Anthropic Claude 3.7, OpenAI GPT-4.5/o3-mini, Google Gemini 2.0 Pro, API Key vault, status probe)",
+      "5. Model Registry & Capabilities (Model capability matrix, token context limits, cost per 1M tokens, default fallback rules)",
+      "6. Model Assignment (Granular assignment at Org, Project, and Task levels e.g. Code Analysis -> Claude 3.7, Browser Execution -> GPT-4o)",
+      "7. Token Usage & Cost Dashboards (Historical token usage line chart, per-model breakdown, cost per project, monthly spend vs budget limits)",
+      "8. Budget Management (Hard/Soft budget limits, email/slack alert thresholds, auto-pause automated runs on threshold breach)",
+      "9. Application Intelligence & Code Analysis (Repository structural scan, API endpoint extraction, state machine mapping)",
+      "10. Testing Workspace & Live Browser Testing (Step-by-step agent execution trajectory, real-time log stream, screenshot evidence viewer, live DOM tree inspector)",
+      "11. Test Case Repository & Regression Execution (Test case creation, suite tagging, trigger regression execution run, diff-first run comparison)",
+      "12. Defect Intelligence & Evidence Repository (Semantic failure mode clustering, trace-linked debugging, auto-generated GitHub issue creator, video/screenshot evidence)",
+      "13. Reports, Audit Logs & Settings (Export PDF/JSON test summary, full system audit log with filter by user/agent action)"
+    ],
+    "file_structure_guidelines": "Use standard React JavaScript (.js) files inside /app/frontend/src/. Ensure proper imports using '@/' path alias where configured.",
+    "testing_requirement": "CRITICAL: Every interactive element, navigation item, button, input, tab, card, and metric container MUST include data-testid attributes (e.g. data-testid=\"project-card-run-button\")."
+  },
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": {
+    "anti_ai_slop": "Avoid generic centered white cards with soft shadows. Create high-density, rich developer-grade panels with crisp borders, subtle dark glows, clear typography hierarchy, and precise metric badges.",
+    "no_transparent_overlays": "Never render empty or fully transparent header/dropdown panels over dynamic content.",
+    "color_contrast_mandate": "Ensure all text meets WCAG AA standards against dark background surfaces (#09090B / #121215).",
+    "micro_interactions": "Every interactive button and selector must have hover, active, and focus states.",
+    "toast_notifications": "Use Sonner for all action feedback (e.g., 'GitHub repository connected successfully', 'Regression run queued')."
+  }
+}

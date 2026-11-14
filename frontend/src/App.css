@@ -1,34 +1,112 @@
-.App-logo {
-    height: 40vmin;
-    pointer-events: none;
+.heading-font {
+  font-family: 'Outfit', sans-serif;
+}
+.mono-font {
+  font-family: 'JetBrains Mono', monospace;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-        animation: App-logo-spin infinite 20s linear;
-    }
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #27272a; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+
+/* Sidebar */
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  color: #a1a1aa;
+  transition: background-color 0.15s, color 0.15s;
+  cursor: pointer;
+  text-decoration: none;
+}
+.sidebar-nav-item:hover {
+  background-color: rgba(255,255,255,0.05);
+  color: #f4f4f5;
+}
+.sidebar-nav-item.active {
+  background-color: rgba(0,240,255,0.08);
+  color: #00f0ff;
+}
+.sidebar-nav-item.active svg {
+  color: #00f0ff;
 }
 
-.App-header {
-    background-color: #0f0f10;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
+/* Stat Card */
+.stat-card {
+  background: #121215;
+  border: 1px solid #27272a;
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+  transition: border-color 0.2s;
+}
+.stat-card:hover {
+  border-color: #3f3f46;
 }
 
-.App-link {
-    color: #61dafb;
+/* Status badges */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.status-dot.active { background: #10b981; }
+.status-dot.inactive { background: #71717a; }
+.status-dot.error { background: #f43f5e; }
+.status-dot.paused { background: #f59e0b; }
+
+/* Pulse animation for active items */
+@keyframes pulse-cyan {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0,240,255,0.3); }
+  50% { box-shadow: 0 0 0 4px rgba(0,240,255,0); }
+}
+.pulse-active {
+  animation: pulse-cyan 2s infinite;
 }
 
-@keyframes App-logo-spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+/* Page transitions */
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.page-enter {
+  animation: fadeSlideIn 0.3s ease-out;
+}
+
+/* Markdown content styling */
+.markdown-content h1 { font-size: 1.5rem; font-weight: 700; margin: 1rem 0 0.5rem; color: #f4f4f5; }
+.markdown-content h2 { font-size: 1.25rem; font-weight: 600; margin: 0.75rem 0 0.5rem; color: #f4f4f5; }
+.markdown-content h3 { font-size: 1.1rem; font-weight: 600; margin: 0.75rem 0 0.25rem; color: #e4e4e7; }
+.markdown-content p { margin: 0.5rem 0; color: #a1a1aa; line-height: 1.7; }
+.markdown-content ul, .markdown-content ol { padding-left: 1.5rem; margin: 0.5rem 0; color: #a1a1aa; }
+.markdown-content li { margin: 0.25rem 0; }
+.markdown-content code { font-family: 'JetBrains Mono', monospace; background: #18181b; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-size: 0.85em; color: #00f0ff; }
+.markdown-content pre { background: #18181b; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; margin: 0.75rem 0; border: 1px solid #27272a; }
+.markdown-content pre code { background: transparent; padding: 0; }
+.markdown-content blockquote { border-left: 3px solid #00f0ff; padding-left: 1rem; margin: 0.75rem 0; color: #71717a; }
+.markdown-content table { width: 100%; border-collapse: collapse; margin: 0.75rem 0; }
+.markdown-content th, .markdown-content td { padding: 0.5rem; border: 1px solid #27272a; text-align: left; }
+.markdown-content th { background: #18181b; font-weight: 600; color: #e4e4e7; }
+
+/* Upload zone */
+.upload-zone {
+  border: 2px dashed #27272a;
+  border-radius: 0.5rem;
+  padding: 2rem;
+  text-align: center;
+  transition: border-color 0.2s, background-color 0.2s;
+  cursor: pointer;
+}
+.upload-zone:hover, .upload-zone.drag-active {
+  border-color: #00f0ff;
+  background: rgba(0,240,255,0.03);
+}
+.upload-zone.has-file {
+  border-color: #10b981;
+  border-style: solid;
 }
